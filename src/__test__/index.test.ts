@@ -50,6 +50,15 @@ describe('serverless-offline-ssm', () => {
     expect(serverless.variables.variableResolvers[0].resolver).toEqual(instance.resolver)
   })
 
+  test.only('should initialize with a valid (but unresolved) options stage', () => {
+    const serverless = serverlessMock()
+    const options = serverlessOptionsMock()
+    const instance = new ServerlessOfflineSSM(serverless, options)
+
+    // check the resolver has been overridden
+    expect(serverless.variables.variableResolvers[0].resolver).toEqual(instance.resolver)
+  })
+
   test('should initialize with a valid provider stage', () => {
     const serverless = serverlessMock({
       service: {

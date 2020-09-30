@@ -1,6 +1,6 @@
 import Serverless from 'serverless'
 import Plugin from 'serverless/classes/Plugin'
-import { getValueFromEnv } from './util'
+import { getValueFromEnv, getValueFromOptions } from './util'
 
 type ServerlessOfflineSSMConfig = {
   stages: string[]
@@ -25,6 +25,7 @@ class ServerlessOfflineSSM implements Plugin {
   private config?: ServerlessOfflineSSMConfig
   private provider: string
   private ssmResolver: Resolver | null
+  private optsResolver: Resolver | null
 
   hooks: Plugin.Hooks;
   commands?: Plugin.Commands;
@@ -76,6 +77,20 @@ class ServerlessOfflineSSM implements Plugin {
   }
 
   shouldExecute = (): boolean => {
+    const regex = RegExp(/(\${*)([^}]*)(}*)/);  // match a string with the format of ${***} with any number of opening and closing brackets allowed
+    const unresolvedStages = this.config.stages.filter((stage) => stage.match(regex));
+
+    console.log("Config stages: ", this.config.stages, " Stage options: ", this.options.stage, " Service provider stage: ", this.serverless.service.provider?.stage)
+
+    if (unresolvedStages) {
+      console.log("Stage contains unresolved param! ", unresolvedStages);
+      const resolvedStage = getValueFromOptions(unresolvedStages, this.options); 
+      console.log("Resolved params: ", resolvedStage)
+      if (resolvedStage.includes(this.options.stage)) {
+        return true;
+      }
+    }
+    
     return this.config.stages.includes(
       this.options.stage || this.serverless.service.provider?.stage
     ) ?? false

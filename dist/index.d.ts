@@ -18,6 +18,7 @@ declare class ServerlessOfflineSSM implements Plugin {
     private config?;
     private provider;
     private ssmResolver;
+    private optsResolver;
     hooks: Plugin.Hooks;
     commands?: Plugin.Commands;
     constructor(serverless: ServerlessOffline, options: Serverless.Options);
